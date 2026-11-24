@@ -1,0 +1,17 @@
+{
+  "name": "Язык музыки — Ноты, клавиши, гриф и чувства",
+  "short_name": "Язык музыки",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "./icon.svg?v=100",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

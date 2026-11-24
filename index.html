@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0e14" />
+  <meta name="color-scheme" content="dark" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://telegram.org https://mc.yandex.ru https://mc.yandex.com https://yastatic.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com; media-src 'self' data: blob:; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru; frame-src 'self' https://mc.yandex.ru https://mc.yandex.com; child-src 'self' blob: https://mc.yandex.ru https://mc.yandex.com; object-src 'none'; base-uri 'self'; form-action 'none';" />
+  <meta name="referrer" content="origin" />
+  <title>Язык музыки · Ноты, клавиши, гриф и чувства</title>
+  <link rel="manifest" href="./manifest.webmanifest?v=113" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg?v=113" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="./style.css?v=113" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <button id="brand-home" class="brand-btn" type="button" title="На главную">
+        <span class="brand-mark" aria-hidden="true">♪</span>
+        <span>Язык музыки</span>
+      </button>
+      <div class="topbar-actions">
+        <button id="btn-open-tuner" class="icon-pill" type="button" title="Тюнер (камертон)" aria-label="Открыть тюнер">
+          <svg class="fork-icon" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6.5 2.5v5.8a3.5 3.5 0 0 0 7 0V2.5" />
+            <path d="M10 11.8v5.7" />
+            <circle cx="10" cy="17.8" r="1.1" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+        <button id="hud-pill" class="hud-pill" type="button" title="Мой ритм и настройки">⚙ 0 / 216</button>
+      </div>
+    </header>
+
+    <nav id="main-tabs" class="tabs tabs-4" aria-label="Разделы">
+      <button class="tab active" type="button" data-tab="route">Путь</button>
+      <button class="tab" type="button" data-tab="emotions">Студия</button>
+      <button class="tab" type="button" data-tab="ear">Слух</button>
+      <button class="tab" type="button" data-tab="drums">Ударные</button>
+    </nav>
+
+    <!-- LOADING / ERROR STATE -->
+    <section id="view-loading" class="card">
+      <p class="muted">Настраиваю студию...</p>
+    </section>
+
+    <!-- TAB 1: ROUTE (CLEAN 1-SCREEN NEXT STEP + COLLAPSED COURSE MAP) -->
+    <section id="view-route" class="view hidden">
+      <div id="route-hero-card" class="card route-hero-card">
+        <div class="section-head">
+          <span id="route-next-kicker" class="layer-tag">Шаг 1 из 216</span>
+          <span id="route-unlock-chip" class="chip">Карта: 1 / 4</span>
+        </div>
+        <h1 id="route-next-title" class="route-next-title">Что такое октава</h1>
+        <p id="route-next-sub" class="muted small-text route-next-sub">5 минут без сложных слов: слушаешь, пробуешь на клавишах — и открываешь новые инструменты студии.</p>
+        <button id="btn-start-day1" class="btn primary full route-start-btn" type="button">▶ Начать Урок 1</button>
+        <div id="route-unlock-teaser" class="route-unlock-teaser"></div>
+      </div>
+
+      <div id="due-banner" class="banner banner-due hidden"></div>
+
+      <details id="route-map-details" class="card course-map-details">
+        <summary class="course-map-summary">
+          <span>🗺 Все 36 недель и 9 глав</span>
+          <span id="route-act-counter" class="chip">9 глав</span>
+        </summary>
+        <div class="course-map-body">
+          <div id="act-pills" class="pill-rail" role="tablist" aria-label="Главы"></div>
+          <div id="act-header-card" class="act-hero-inline">
+            <div class="act-kicker" id="act-kicker"></div>
+            <h2 id="act-title"></h2>
+            <div id="act-progress-line" class="progress-track"><div id="act-progress-fill" class="progress-fill"></div></div>
+          </div>
+          <div id="weeks-list" class="weeks-list"></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- SHARED STUDIO VIEW: 1-SCREEN ZERO-SCROLL LESSON + COLLAPSED DETAILS -->
+    <section id="view-studio" class="view hidden">
+      <div class="studio-nav">
+        <button id="btn-studio-back" class="btn-ghost" type="button">← Назад</button>
+        <div class="studio-step-nav">
+          <button id="btn-studio-prev" class="btn-ghost btn-sm" type="button" aria-label="Предыдущий">‹</button>
+          <span id="studio-id-badge" class="chip">M001</span>
+          <button id="btn-studio-next" class="btn-ghost btn-sm" type="button" aria-label="Следующий">›</button>
+        </div>
+      </div>
+
+      <div class="card studio-card studio-card-compact">
+        <div class="studio-meta-row">
+          <span id="studio-emotion-badge" class="emotion-pill">Любопытство</span>
+          <span id="studio-meter-badge" class="chip">Шаг 4/4</span>
+          <span id="studio-lenses-badge" class="chip">Слух</span>
+        </div>
+        <h1 id="studio-title" class="studio-title"></h1>
+        <p id="studio-subtitle" class="muted studio-subtitle hidden"></p>
+
+        <!-- ULTRA-CONCISE PLAIN EXPLANATION + CLICKABLE GLOSSARY -->
+        <div id="studio-simple-box" class="simple-box simple-box-compact">
+          <p id="studio-simple-text" class="simple-box-body"></p>
+          <div id="studio-glossary-wrap" class="glossary-wrap hidden">
+            <div id="studio-glossary-pills" class="glossary-pills"></div>
+            <div id="studio-glossary-popup" class="glossary-popup hidden"></div>
+          </div>
+        </div>
+
+        <!-- CLEAN PRIMARY TRANSPORT (1 MAIN ACTION) -->
+        <div class="transport-row">
+          <button id="btn-play" class="btn primary" type="button">▶ Послушать</button>
+          <button id="btn-timbre" class="btn toggle-btn" type="button">Гитара</button>
+          <button id="btn-loop" class="btn toggle-btn" type="button" aria-pressed="false">⟳</button>
+        </div>
+
+        <div class="viz-mode-row">
+          <button id="btn-sound-help" class="btn-link muted-link" type="button">🔇 Нет звука?</button>
+          <button id="btn-toggle-staff" class="btn-link" type="button">+ Нотный стан</button>
+        </div>
+        <p id="sound-help-tip" class="sound-help-tip hidden">На iPhone мы обходим беззвучный режим автоматически — просто прибавь громкость кнопками сбоку телефона и нажми «▶ Послушать» ещё раз.</p>
+
+        <!-- INTERACTIVE SYNCHRONIZED SVG TRIPTYCH -->
+        <div id="studio-triptych"></div>
+
+        <!-- LIVE A <-> B CONTRAST SWITCHER (1 COMPACT ROW) -->
+        <div id="contrast-box" class="contrast-box contrast-box-compact">
+          <div class="contrast-head">
+            <span class="field-label">Сравни A и B</span>
+            <button id="btn-ab-full" class="btn-link" type="button">Всё вместе</button>
+          </div>
+          <div class="ab-switch">
+            <button id="btn-ab-a" class="ab-btn" type="button">A: Обычное</button>
+            <button id="btn-ab-b" class="ab-btn" type="button">B: Урок</button>
+          </div>
+          <p id="ab-hint" class="muted small-text hidden"></p>
+        </div>
+
+        <!-- IMMEDIATE 1-SCREEN COMPLETION BAR (VISIBLE WITHOUT SCROLLING!) -->
+        <div id="studio-complete-box" class="complete-inline">
+          <button id="btn-complete-heard" class="btn primary full" type="button">✓ Понятно — дальше</button>
+          <button id="btn-complete-repeat" class="btn-ghost btn-sm" type="button" title="Освежить завтра">↻ Завтра</button>
+        </div>
+        <p id="complete-status" class="muted small-text"></p>
+      </div>
+
+      <!-- ALL DEEP PRACTICE, THEORY, SETTINGS & HANDOFFS COLLAPSED IN 1 TIDY DRAWER -->
+      <details id="studio-more-details" class="card studio-more-details">
+        <summary class="course-map-summary">
+          <span>📖 Практика, ноты, настройки и джем</span>
+          <span class="chip">Подробнее</span>
+        </summary>
+        <div class="studio-more-body">
+          <div class="handoff-row">
+            <button id="btn-studio-to-ear" class="btn-pill" type="button">👂 Проверить на слух</button>
+            <button id="btn-studio-to-drums" class="btn-pill" type="button">🥁 Джем в Ударных</button>
+          </div>
+
+          <details id="studio-advanced-details" class="studio-advanced">
+            <summary class="studio-adv-summary">⚙ Тонкие настройки (тональность, каподастр, фон, строй)</summary>
+            <div class="studio-adv-body">
+              <div class="transport-subrow">
+                <button id="btn-drone" class="btn-pill" type="button" aria-pressed="false">Фон-нота: выкл</button>
+                <button id="btn-metro" class="btn-pill" type="button" aria-pressed="false">Метроном</button>
+                <button id="btn-rate" class="btn-pill" type="button">Темп 1.0×</button>
+              </div>
+              <div class="transpose-box">
+                <div class="transpose-col">
+                  <span class="field-label">Сдвиг высоты</span>
+                  <div class="stepper">
+                    <button id="btn-tr-down" class="step-btn" type="button" aria-label="Ниже на полутон">−</button>
+                    <span id="tr-val" class="step-val">0 шагов</span>
+                    <button id="btn-tr-up" class="step-btn" type="button" aria-label="Выше на полутон">+</button>
+                  </div>
+                </div>
+                <div class="transpose-col">
+                  <span class="field-label">Каподастр</span>
+                  <div class="stepper">
+                    <button id="btn-capo-down" class="step-btn" type="button" aria-label="Капо ниже">−</button>
+                    <span id="capo-val" class="step-val">0 лад</span>
+                    <button id="btn-capo-up" class="step-btn" type="button" aria-label="Капо выше">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="tuning-bar">
+                <span class="field-label">Строй гитары на грифе</span>
+                <div id="studio-tuning-pills" class="pill-rail"></div>
+              </div>
+            </div>
+          </details>
+
+          <div class="layers-grid">
+            <article class="card layer-card">
+              <div class="layer-tag">Попробуй сам (5 минут)</div>
+              <p id="layer-motor" class="layer-body"></p>
+              <div class="hands-guide">
+                <div id="hands-guitar" class="hands-line"></div>
+                <div id="hands-piano" class="hands-line"></div>
+              </div>
+              <p id="layer-practice" class="muted small-text"></p>
+            </article>
+
+            <article class="card layer-card layer-feeling">
+              <div class="layer-tag">Что ты почувствуешь</div>
+              <p id="layer-sensory" class="layer-body"></p>
+              <p id="layer-feeling-trigger" class="theory-note"></p>
+            </article>
+
+            <article class="card layer-card">
+              <div id="layer-secret-tag" class="layer-tag">Главный секрет урока</div>
+              <p id="layer-falsifier" class="layer-body"></p>
+            </article>
+
+            <article class="card layer-card layer-theory">
+              <details class="anatomy-details">
+                <summary class="anatomy-summary">🎼 Разбор по нотам и ступеням</summary>
+                <p id="layer-ontology" class="layer-body anatomy-intro"></p>
+                <div class="anatomy-block">
+                  <div class="anatomy-row">
+                    <span class="anatomy-label">Главная нота (дом):</span>
+                    <span id="anatomy-tonic" class="anatomy-val"></span>
+                  </div>
+                  <div class="anatomy-sub">Нажми на ступень, чтобы услышать:</div>
+                  <div id="anatomy-degrees" class="degree-chips"></div>
+                  <p id="anatomy-harmony" class="theory-note"></p>
+                  <p id="anatomy-rhythm" class="muted small-text"></p>
+                </div>
+              </details>
+            </article>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- TAB 2: CREATIVE STUDIO (60 FEELINGS, CIRCLE, SPHERE, GUITAR, SCENE, 20 TECHNIQUES) -->
+    <section id="view-emotions" class="view hidden">
+      <div id="emotions-subtabs" class="pill-rail sub-rail" role="tablist" aria-label="Творческая студия">
+        <button class="pill active" type="button" data-esub="atlas">60 чувств</button>
+        <button class="pill" type="button" data-esub="circle">Круг и аккорды</button>
+        <button class="pill" type="button" data-esub="sphere">Сфера и древо</button>
+        <button class="pill" type="button" data-esub="guitar">Гриф и техники</button>
+        <button class="pill" type="button" data-esub="scene">Сцена</button>
+        <button class="pill" type="button" data-esub="catalog">20 приёмов</button>
+      </div>
+
+      <!-- SUB-VIEW 0: COMPLETE 60-FEELING ATLAS (12 KEYS x FORMULA SHIFTS x 10 LIVE VARIATIONS) -->
+      <div id="esub-atlas" class="sub-view">
+        <div class="card">
+          <div class="section-head">
+            <h1>Атлас 60 чувств</h1>
+            <span id="atlas-count-chip" class="chip">60 чувств</span>
+          </div>
+          <p class="muted small-text">Выбери любое настроение, нажми «▶ Послушать» или отправь его в Круг, на Гриф или в Ударные для джема.</p>
+          <input id="atlas-search" class="atlas-search" type="search" placeholder="Найти чувство: тепло, радость, печаль..." aria-label="Поиск чувства" />
+          <div id="atlas-families-rail" class="pill-rail"></div>
+          <div id="atlas-feelings-grid" class="atlas-feelings-grid"></div>
+        </div>
+
+        <div class="card layer-feeling">
+          <div class="section-head">
+            <h2 id="atlas-cur-name">Тепло</h2>
+            <span id="atlas-cur-mode" class="chip">Мажор · add9 / 6</span>
+          </div>
+          <p id="atlas-cur-essence" class="layer-body"></p>
+          <div class="atlas-hero-cta">
+            <button id="btn-atlas-play-main" class="btn primary" type="button">▶ Послушать</button>
+            <button id="btn-atlas-timbre" class="btn toggle-btn" type="button">Гитара</button>
+          </div>
+          <div class="handoff-row">
+            <button id="btn-atlas-to-circle" class="btn-pill" type="button">⭕ В Круг</button>
+            <button id="btn-atlas-to-guitar" class="btn-pill" type="button">🎸 На Гриф</button>
+            <button id="btn-atlas-to-drums" class="btn-pill" type="button">🥁 Джем</button>
+            <button id="btn-atlas-to-scene" class="btn-pill" type="button">+ В сцену</button>
+          </div>
+          <p id="atlas-cur-marker" class="theory-note"></p>
+
+          <div class="atlas-key-head">
+            <span class="field-label">Тональность (12 ключей)</span>
+          </div>
+          <div id="atlas-keys-rail" class="pill-rail"></div>
+          <p id="atlas-key-explain" class="muted small-text"></p>
+        </div>
+
+        <details id="atlas-deep-details" class="card course-map-details">
+          <summary class="course-map-summary">
+            <span id="atlas-vars-title">✨ 10 вариантов и перекладки</span>
+            <span id="atlas-tuning-chip" class="chip">6 стр · Std E</span>
+          </summary>
+          <div class="course-map-body">
+            <div class="field-label chain-label">Ступени чувства (нажми, чтобы услышать)</div>
+            <div id="atlas-degrees" class="degree-chips"></div>
+
+            <div class="field-label chain-label">Сдвинь 1 ноту → получишь другое чувство</div>
+            <div id="atlas-shifts" class="atlas-shifts"></div>
+
+            <p id="atlas-vars-prog" class="muted small-text"></p>
+            <div id="atlas-variations-list" class="atlas-variations-list"></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- SUB-VIEW A: CIRCLE OF FIFTHS & CHORD PALETTE CALCULATOR -->
+      <div id="esub-circle" class="sub-view hidden">
+        <div class="card">
+          <div class="section-head">
+            <h1>Кварто-квинтовый круг</h1>
+            <span id="cof-sig-chip" class="chip">0 знаков</span>
+          </div>
+          <p class="muted small-text">Коснись любой тональности (мажор снаружи, минор внутри) — подсветится семья из 6 главных аккордов-соседей.</p>
+
+          <div class="cof-svg-wrap">
+            <svg id="cof-svg" class="viz-svg cof-svg" viewBox="0 0 340 340" role="img" aria-label="Интерактивный кварто-квинтовый круг"></svg>
+          </div>
+          <div id="cof-caption" class="viz-caption"></div>
+
+          <details id="cof-orbit-details" class="orbit-bloom-card">
+            <summary class="orbit-summary">
+              <span class="field-label orbit-lbl">✨ Суб-круг 8 красок (maj7, add9, sus, #11)</span>
+              <span id="cof-orbit-chip" class="chip">C · 8 красок</span>
+            </summary>
+            <p class="muted small-text orbit-sub">Добавочные ноты к аккорду — коснись лепестка, чтобы услышать оттенок и добавить его в палитру.</p>
+            <div class="cof-svg-wrap orbit-wrap">
+              <svg id="cof-orbit-svg" class="viz-svg orbit-svg" viewBox="0 0 340 236" role="img" aria-label="Суб-круг мелодических красок аккорда"></svg>
+            </div>
+            <div id="cof-orbit-caption" class="viz-caption"></div>
+          </details>
+
+          <div class="field-label chain-label">7 родных аккордов тональности (6 соседей + 7-й острый)</div>
+          <div id="cof-diatonic-grid" class="chord-palette-grid"></div>
+
+          <div class="field-label chain-label">Аккорды-гости из соседних ладов (для кино и чувств)</div>
+          <div id="cof-borrowed-grid" class="chord-palette-grid borrowed"></div>
+        </div>
+
+        <div class="card scene-card">
+          <div class="section-head">
+            <h2>Палитра аккордов по чувствам</h2>
+            <span id="cof-prog-count" class="chip">0 акк.</span>
+          </div>
+          <div id="cof-presets-rail" class="pill-rail"></div>
+          <div id="cof-prog-slots" class="scene-slots"></div>
+          <div class="scene-actions">
+            <button id="btn-cof-play" class="btn primary" type="button">▶ Сыграть палитру</button>
+            <button id="btn-cof-clear" class="btn-ghost" type="button">Очистить</button>
+            <button id="btn-cof-timbre" class="btn secondary" type="button">Гитара</button>
+          </div>
+          <div class="handoff-row">
+            <button id="btn-cof-to-drums" class="btn secondary full" type="button">🥁 Джемовать эту палитру в Ударных →</button>
+          </div>
+
+          <div id="cof-fretboard-box" class="cof-fretboard-box">
+            <div class="section-head">
+              <span id="cof-fret-title" class="field-label orbit-lbl">Аппликатура: Cmaj7</span>
+              <span id="cof-fret-tuning-chip" class="chip">6 стр · Std E</span>
+            </div>
+            <div class="cof-fret-svg-wrap">
+              <svg id="cof-fret-svg" class="viz-svg" viewBox="0 0 360 116" role="img" aria-label="Живая аппликатура текущего аккорда на грифе"></svg>
+            </div>
+            <div id="cof-fret-caption" class="viz-caption"></div>
+            <div id="cof-tuning-pills" class="pill-rail"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW B: SCALE SPHERE & MELODY PHRASE TREE -->
+      <div id="esub-sphere" class="sub-view hidden">
+        <div class="card">
+          <div class="section-head">
+            <h1>Сфера гаммы и древо фраз</h1>
+            <span id="sphere-mode-chip" class="chip">Лидийский</span>
+          </div>
+          <p class="muted small-text">Гамма как сфера притяжений, а мелодия — ветвь древа, прорастающая из ноты в ноту. Нажимай точки на сфере или ветки ниже.</p>
+
+          <div class="field-label chain-label">Тоника (дом)</div>
+          <div id="sphere-roots-rail" class="pill-rail"></div>
+
+          <div class="field-label chain-label">Лад и эмоциональная краска</div>
+          <div id="sphere-modes-rail" class="pill-rail"></div>
+
+          <div class="cof-svg-wrap">
+            <svg id="sphere-svg" class="viz-svg sphere-svg" viewBox="0 0 340 276" role="img" aria-label="Сфера гаммы и траектория мелодии"></svg>
+          </div>
+          <div id="sphere-caption" class="viz-caption"></div>
+
+          <div class="field-label chain-label">Куда пойти дальше — ветки древа от текущей ноты</div>
+          <div id="sphere-tree-branches" class="tree-branches"></div>
+        </div>
+
+        <div class="card scene-card">
+          <div class="section-head">
+            <h2>Собранная фраза и простые подходы</h2>
+            <span id="sphere-phrase-count" class="chip">0 нот</span>
+          </div>
+          <div id="sphere-archetypes" class="pill-rail">
+            <button class="btn-pill" type="button" data-arch="question_answer">Вопрос → Ответ</button>
+            <button class="btn-pill" type="button" data-arch="wave">Волна (вдох/выдох)</button>
+            <button class="btn-pill" type="button" data-arch="pendulum">Маятник опоры</button>
+            <button class="btn-pill" type="button" data-arch="leap_fill">Скачок → Спуск</button>
+          </div>
+          <div id="sphere-phrase-slots" class="scene-slots"></div>
+          <p id="sphere-guitar-map" class="hands-line"></p>
+          <div class="scene-actions">
+            <button id="btn-sphere-play" class="btn primary" type="button">▶ Сыграть фразу</button>
+            <button id="btn-sphere-undo" class="btn secondary" type="button">↩ Шаг</button>
+            <button id="btn-sphere-clear" class="btn-ghost" type="button">Сброс</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW B2: ANTI-EM/AM FRETBOARD CALCULATOR & 10 GUITAR TECHNIQUES -->
+      <div id="esub-guitar" class="sub-view hidden">
+        <div class="card">
+          <div class="section-head">
+            <h1>Свобода грифа (без Em / Am)</h1>
+            <span id="glab-tuning-chip" class="chip">6 стр · Std E</span>
+          </div>
+          <p class="muted small-text">Ломай привычку открытых струн: выбирай новую тональность и играй её в зоне 4 ладов, на 1 струне или по 3 ноты на струну.</p>
+
+          <div class="glab-top-actions">
+            <button id="btn-glab-antihabit" class="btn primary" type="button">🎲 Другой ключ</button>
+            <button id="btn-glab-play" class="btn secondary" type="button">▶ Послушать</button>
+          </div>
+
+          <div class="field-label chain-label">Тональность и лад</div>
+          <div id="glab-roots-rail" class="pill-rail"></div>
+          <div id="glab-modes-rail" class="pill-rail"></div>
+
+          <div class="field-label chain-label">Режим раскладки по грифу</div>
+          <div id="glab-layout-pills" class="pill-rail">
+            <button class="pill active" type="button" data-glayout="zone">Зона 4 ладов</button>
+            <button class="pill" type="button" data-glayout="one_string">1 струна (горизонталь)</button>
+            <button class="pill" type="button" data-glayout="3nps">3 ноты на струну</button>
+            <button class="pill" type="button" data-glayout="full">Весь гриф (0–15)</button>
+          </div>
+
+          <div id="glab-zone-controls" class="glab-param-row">
+            <span class="drum-mini-lbl">Позиция (4 лада):</span>
+            <div class="stepper">
+              <button id="btn-glab-zone-down" class="step-btn" type="button">−</button>
+              <span id="glab-zone-val" class="step-val">5–8 лад</span>
+              <button id="btn-glab-zone-up" class="step-btn" type="button">+</button>
+            </div>
+          </div>
+
+          <div id="glab-string-controls" class="glab-param-row hidden">
+            <span class="drum-mini-lbl">Активная струна:</span>
+            <div id="glab-string-pills" class="seg-mini"></div>
+          </div>
+
+          <div id="glab-neck-scroll" class="drum-grid-scroll glab-neck-scroll">
+            <svg id="glab-neck-svg" class="viz-svg glab-neck-svg" viewBox="0 0 540 132" role="img" aria-label="Карта грифа гитары 0–15 лад"></svg>
+          </div>
+          <div id="glab-caption" class="viz-caption"></div>
+          <p id="glab-challenge" class="theory-note"></p>
+
+          <div class="field-label chain-label">Строй гитары</div>
+          <div id="glab-tuning-pills" class="pill-rail"></div>
+        </div>
+
+        <div class="card layer-theory">
+          <div class="section-head">
+            <h2>10 техник гитары (звук + чувства)</h2>
+            <span id="gtech-notation-chip" class="chip">5h7</span>
+          </div>
+          <p class="muted small-text">Нажми на любую технику — услышишь её живой пример на гитаре, табулатуру под твой строй и 5-минутный этюд.</p>
+          <div id="gtech-pills" class="pill-rail"></div>
+
+          <div class="gtech-detail">
+            <div class="section-head">
+              <h2 id="gtech-name"></h2>
+              <button id="btn-gtech-play" class="btn primary gtech-play-btn" type="button">▶ Звук</button>
+            </div>
+            <p id="gtech-feel" class="layer-body"></p>
+            <div id="gtech-tab" class="hands-line"></div>
+            <p id="gtech-mechanics" class="theory-note"></p>
+            <p id="gtech-emotion" class="muted small-text"></p>
+            <p id="gtech-drill" class="jam-box"></p>
+            <div id="gtech-handoff-row" class="handoff-row hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW C: SCENE BUILDER -->
+      <div id="esub-scene" class="sub-view hidden">
+      <div class="card scene-card">
+        <div class="section-head">
+          <h2>Конструктор сцены</h2>
+          <span id="scene-count" class="chip">0 / 6</span>
+        </div>
+        <p class="muted small-text">Собери от 2 до 6 чувств и приёмов кнопкой «+» ниже — движок склеит их в живую партию на клавишах и грифе.</p>
+
+        <div class="preset-row">
+          <button class="btn-pill preset-btn" type="button" data-preset="E18,E01,E20">Япония → Полёт → Дроп</button>
+          <button class="btn-pill preset-btn" type="button" data-preset="E17,E19,E16">Хиджаз → Пхин → Тишина</button>
+          <button class="btn-pill preset-btn" type="button" data-preset="F01,F22,F36">Тепло → Ностальгия → Прорыв</button>
+          <button class="btn-pill preset-btn" type="button" data-preset="F41,F43,F60">Загадка → Гроза → К себе</button>
+        </div>
+
+        <div id="scene-slots" class="scene-slots"></div>
+
+        <div class="density-row" role="group" aria-label="Плотность фактуры">
+          <button class="btn-pill density-btn" type="button" data-density="solo">Соло</button>
+          <button class="btn-pill density-btn active" type="button" data-density="acoustic">Акустика</button>
+          <button class="btn-pill density-btn" type="button" data-density="groove">Полный грув</button>
+        </div>
+
+        <div class="scene-actions">
+          <button id="btn-scene-play" class="btn primary" type="button">▶ Сыграть сцену</button>
+          <button id="btn-scene-save" class="btn secondary" type="button">Сохранить</button>
+          <button id="btn-scene-clear" class="btn-ghost" type="button">Очистить</button>
+        </div>
+
+        <div id="scene-triptych" class="scene-triptych hidden"></div>
+      </div>
+
+      <div id="scene-picker-box" class="card">
+        <div class="section-head">
+          <h2>+ Добавить в сцену</h2>
+          <div class="seg-mini">
+            <button id="btn-spick-mech" class="btn-pill active" type="button">20 приёмов</button>
+            <button id="btn-spick-feel" class="btn-pill" type="button">60 чувств</button>
+          </div>
+        </div>
+        <p class="muted small-text">Нажми «+» у любого приёма кино/мира или чувства из Атласа — оно сразу встанет в цепочку выше.</p>
+        <div id="scene-picker-list" class="scene-picker-list"></div>
+      </div>
+      </div>
+
+      <!-- SUB-VIEW D: 20 EMOTION & WORLD MECHANICS CATALOG -->
+      <div id="esub-catalog" class="sub-view hidden">
+      <div class="card">
+        <div class="section-head">
+          <h1>20 приёмов кино и мира</h1>
+          <span class="chip">Готовые формулы</span>
+        </div>
+        <p class="muted small-text">Чем отличается от «60 чувств»: здесь собраны 20 конкретных приёмов кино, игр и музыки разных стран — их можно открыть как мини-урок или добавить в Сцену.</p>
+        <div id="emotion-filters" class="pill-rail">
+          <button class="pill active" type="button" data-efilter="all">Все (20)</button>
+          <button class="pill" type="button" data-efilter="cinema">Кино и игры</button>
+          <button class="pill" type="button" data-efilter="world">Края света</button>
+          <button class="pill" type="button" data-efilter="rhythm">Ритм и транс</button>
+        </div>
+        <div id="emotions-grid" class="emotions-grid"></div>
+      </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BLIND EAR TRAINER -->
+    <section id="view-ear" class="view hidden">
+      <div class="card">
+        <div class="section-head">
+          <h1>Слепой тренажёр слуха</h1>
+          <span id="ear-score-chip" class="chip">0 / 0</span>
+        </div>
+        <p class="muted small-text">Ноты скрыты до твоего ответа. Выбирай вариант ниже — а в режиме «Интервал» можно отвечать и кликом по клавишам/грифу.</p>
+
+        <div id="ear-mode-pills" class="pill-rail">
+          <button class="pill active" type="button" data-earmode="interval">Интервал</button>
+          <button class="pill" type="button" data-earmode="ab_shift">Сдвиг A↔B</button>
+          <button class="pill" type="button" data-earmode="emotion_mode">Лад и чувство</button>
+          <button class="pill" type="button" data-earmode="meter_groove">Размер и грув</button>
+        </div>
+
+        <p id="ear-prompt" class="ear-prompt"></p>
+
+        <div class="transport-row ear-transport-row">
+          <button id="btn-ear-play" class="btn primary" type="button">▶ Послушать</button>
+          <button id="btn-ear-ref" class="btn secondary hidden" type="button">▶ Эталон A</button>
+          <button id="btn-ear-next" class="btn-ghost" type="button">Дальше →</button>
+        </div>
+
+        <div id="ear-options" class="ear-options"></div>
+        <div id="ear-feedback" class="ear-feedback hidden"></div>
+        <div id="ear-handoff-row" class="handoff-row hidden">
+          <button id="btn-ear-open-lesson" class="btn secondary full" type="button">📖 Открыть этот урок в Студии →</button>
+        </div>
+
+        <div id="ear-triptych"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: DRUM GROOVE GENERATOR, SUBDIVISION METRONOME & DRUM THEORY -->
+    <section id="view-drums" class="view hidden">
+      <div class="card drum-hero-card">
+        <div class="section-head">
+          <h1>Ударные и метроном</h1>
+          <span id="drum-chain-badge" class="chip">4/4 · 1/8</span>
+        </div>
+
+        <div class="drum-pulse-banner">
+          <div class="drum-count-box">
+            <div id="drum-live-count" class="drum-live-count">1</div>
+            <div id="drum-live-meter" class="drum-live-meter">Такт 1 · 4/4</div>
+          </div>
+          <div class="drum-bpm-box">
+            <div class="drum-bpm-head">
+              <span class="field-label">Темп</span>
+              <strong id="drum-bpm-val" class="drum-bpm-num">104 BPM</strong>
+            </div>
+            <div class="stepper">
+              <button id="btn-drum-bpm-down" class="step-btn" type="button" aria-label="Медленнее">−</button>
+              <input id="drum-bpm-slider" class="bpm-slider" type="range" min="48" max="200" value="104" aria-label="Темп BPM" />
+              <button id="btn-drum-bpm-up" class="step-btn" type="button" aria-label="Быстрее">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="transport-row">
+          <button id="btn-drum-play" class="btn primary" type="button">▶ Старт</button>
+          <button id="btn-drum-improv" class="btn secondary" type="button">🎲 Грув</button>
+          <button id="btn-drum-tap" class="btn toggle-btn" type="button">Tap BPM</button>
+        </div>
+
+        <div class="drum-sub-row">
+          <span class="drum-mini-lbl">Шаги в доле:</span>
+          <div id="drum-sub-pills" class="seg-mini wrap-mini">
+            <button class="btn-pill" type="button" data-sub="1/4">1/4</button>
+            <button class="btn-pill active" type="button" data-sub="1/8">1/8</button>
+            <button class="btn-pill" type="button" data-sub="1/8T">1/8T</button>
+            <button class="btn-pill" type="button" data-sub="1/16">1/16</button>
+            <button class="btn-pill" type="button" data-sub="1/32">1/32</button>
+          </div>
+        </div>
+
+        <div class="transport-subrow drum-toggles">
+          <button id="btn-drum-click" class="btn-pill" type="button" aria-pressed="true">Клик: вкл</button>
+          <button id="btn-drum-metro-only" class="btn-pill" type="button" aria-pressed="false">Только метроном</button>
+          <button id="btn-drum-autofill" class="btn-pill" type="button" aria-pressed="true">Сбивка томами</button>
+          <button id="btn-drum-gap" class="btn-pill" type="button" aria-pressed="false">Тихий такт</button>
+        </div>
+      </div>
+
+      <!-- JAM BACKING TRACK: ANALOG BASS + 2 SOFT SYNTHS IN ANY KEY OR CUSTOM CHORDS -->
+      <div class="card scene-card">
+        <div class="section-head">
+          <h2>Джем-сопровождение (Бас + Синт)</h2>
+          <span id="drum-backing-chord" class="chip">Выкл</span>
+        </div>
+        <p class="muted small-text">Включи аналоговый бас и мягкий синтезатор — играй на гитаре поверх живого минуса (или отправь сюда свою палитру аккордов из Круга / Атласа).</p>
+
+        <div id="drum-custom-prog-banner" class="custom-prog-banner hidden">
+          <span id="drum-custom-prog-text"></span>
+          <button id="btn-drum-clear-custom" class="btn-link" type="button">× К пресетам</button>
+        </div>
+
+        <div class="transport-subrow backing-controls-row">
+          <button id="btn-backing-bass" class="btn-pill" type="button" aria-pressed="false">Бас: выкл</button>
+          <button class="btn-pill backing-synth-btn active" type="button" data-bsynth="off">Без синта</button>
+          <button class="btn-pill backing-synth-btn" type="button" data-bsynth="pad">Тёплый пэд</button>
+          <button class="btn-pill backing-synth-btn" type="button" data-bsynth="keys">Мягкие клавиши</button>
+        </div>
+
+        <div class="field-label chain-label">Тональность для джема</div>
+        <div id="drum-backing-keys" class="pill-rail"></div>
+
+        <div class="field-label chain-label">Круг аккордов (синхронизируется с тактами ниже)</div>
+        <div id="drum-backing-progs" class="pill-rail"></div>
+      </div>
+
+      <!-- PRESETS & COMPOUND METER CHAIN BUILDER -->
+      <div class="card">
+        <div class="section-head">
+          <h2>Связки размеров и грувы</h2>
+          <span id="drum-bars-count" class="chip">1 / 4 такта</span>
+        </div>
+        <p class="muted small-text">Сопоставляй любые размеры подряд (например 4/4 + 3/4 + 7/8) или выбери готовый грув — каждый такт привязан к своему аккорду квадрата:</p>
+        <div id="drum-presets-rail" class="pill-rail"></div>
+
+        <div class="field-label chain-label">Активная связка тактов (нажми на такт, чтобы открыть его сетку)</div>
+        <div id="drum-bars-chain" class="scene-slots"></div>
+
+        <div id="drum-add-meters" class="pill-rail">
+          <button class="btn-pill" type="button" data-addmeter="4/4">+ 4/4</button>
+          <button class="btn-pill" type="button" data-addmeter="3/4">+ 3/4</button>
+          <button class="btn-pill" type="button" data-addmeter="5/4">+ 5/4</button>
+          <button class="btn-pill" type="button" data-addmeter="6/8">+ 6/8</button>
+          <button class="btn-pill" type="button" data-addmeter="7/8">+ 7/8</button>
+          <button class="btn-pill" type="button" data-addmeter="9/8">+ 9/8</button>
+          <button class="btn-pill" type="button" data-addmeter="12/8">+ 12/8</button>
+          <button id="btn-drum-del-bar" class="btn-pill danger-text" type="button">− Убрать такт</button>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE 5-VOICE STEP SEQUENCER -->
+      <div class="card">
+        <div class="section-head">
+          <h2 id="drum-grid-title">Сетка такта 1 (4/4)</h2>
+          <button id="btn-drum-play-mini" class="btn-pill" type="button">▶ Старт</button>
+        </div>
+        <div id="drum-grid-scroll" class="drum-grid-scroll">
+          <div id="drum-grid" class="drum-grid"></div>
+        </div>
+        <p class="muted small-text drum-legend">Бочка: 1 тап вкл/выкл · остальные: 1 тап = тихий удар, 2 = акцент. Верхняя золотая строка: ● = бас · 5 = шаг перед сменой аккорда.</p>
+      </div>
+
+      <!-- DRUM KIT MUSIC THEORY INTERACTIVE CARD (COLLAPSED BY DEFAULT) -->
+      <details class="card layer-theory course-map-details">
+        <summary class="course-map-summary">
+          <span>📖 Теория ударной установки</span>
+          <span class="chip">5 пэдов</span>
+        </summary>
+        <div class="course-map-body">
+          <div id="drum-theory-pads" class="drum-theory-pads"></div>
+          <div id="drum-theory-detail" class="drum-theory-detail">
+            <h2 id="dt-name"></h2>
+            <p id="dt-role" class="layer-body"></p>
+            <p id="dt-placement" class="theory-note"></p>
+            <p id="dt-rehearsal" class="muted small-text"></p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- TUNING FORK VIEW: ANALOG 120FPS GUITAR & VOICE TUNER -->
+    <section id="view-tuner" class="view hidden">
+      <div class="studio-nav">
+        <button id="btn-tuner-back" class="btn-ghost" type="button">← Назад</button>
+        <span class="chip">Камертон · Тюнер</span>
+      </div>
+      <div class="card tuner-card">
+        <div class="section-head">
+          <h1>Аналоговый тюнер</h1>
+          <span id="tuner-fps-chip" class="chip">120 fps · Точный</span>
+        </div>
+
+        <div class="tuner-mode-row">
+          <div class="seg-mini">
+            <button id="tuner-mode-guitar" class="btn-pill active" type="button">Гитара</button>
+            <button id="tuner-mode-voice" class="btn-pill" type="button">Голос</button>
+          </div>
+          <div class="seg-mini">
+            <button id="tuner-damp-slow" class="btn-pill active" type="button">Плавный ход</button>
+            <button id="tuner-damp-fast" class="btn-pill" type="button">Быстрый ход</button>
+          </div>
+        </div>
+
+        <div class="tuner-dial-wrap">
+          <canvas id="tuner-canvas" class="tuner-canvas" width="336" height="212" aria-label="Аналоговая шкала тюнера"></canvas>
+        </div>
+
+        <div class="tuner-readout">
+          <span id="tuner-freq" class="tuner-metric">— Гц</span>
+          <span id="tuner-cents" class="tuner-cents">Готов к настройке</span>
+          <span id="tuner-dir" class="tuner-metric">Ля = 440 Гц</span>
+        </div>
+
+        <button id="btn-tuner-mic" class="btn primary full" type="button">Включить микрофон</button>
+        <p id="tuner-status" class="muted small-text tuner-status">Сыграй открытую струну или спой ровную ноту — стрелка покажет, нужно ли подтянуть (↑) или ослабить (↓). Или коснись струны ниже для эталона.</p>
+      </div>
+
+      <div id="tuner-guitar-box" class="card">
+        <div class="section-head">
+          <h2>Строй гитары и эталоны струн</h2>
+          <span id="tuner-tuning-label" class="chip">6 струн</span>
+        </div>
+        <div id="tuner-tuning-pills" class="pill-rail"></div>
+        <div id="tuner-strings-grid" class="strings-grid"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: MY RHYTHM (HUD, SETTINGS) -->
+    <section id="view-rhythm" class="view hidden">
+      <div class="studio-nav">
+        <button id="btn-rhythm-back" class="btn-ghost" type="button">← Назад</button>
+        <span class="chip">Мой ритм и настройки</span>
+      </div>
+      <div class="card">
+        <h1>Мой ритм</h1>
+        <p class="muted small-text">Без наказаний за пропуски. Короткие касания на 5–10 минут перестраивают слух надёжнее марафонов.</p>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div id="stat-atoms" class="stat-val">0 / 216</div>
+            <div class="stat-lbl">Уроков пройдено</div>
+          </div>
+          <div class="stat-box">
+            <div id="stat-ear" class="stat-val">—</div>
+            <div class="stat-lbl">Точность слуха</div>
+          </div>
+          <div class="stat-box">
+            <div id="stat-due" class="stat-val">0</div>
+            <div class="stat-lbl">Освежить сегодня</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Освежить на слух</h2>
+        <div id="rhythm-due-list" class="due-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>Путь по 9 главам</h2>
+        <div id="rhythm-acts-bars" class="acts-bars"></div>
+      </div>
+
+      <div class="card">
+        <h2>Сохранённые сцены</h2>
+        <div id="rhythm-scenes-list" class="saved-scenes-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>Настройки студии</h2>
+        <div class="setting-row">
+          <span>Основной тембр</span>
+          <div class="seg-mini">
+            <button id="pref-guitar" class="btn-pill" type="button">Гитара</button>
+            <button id="pref-piano" class="btn-pill" type="button">Пианино</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span>Фон-нота по умолчанию</span>
+          <button id="pref-drone" class="btn-pill" type="button">Выкл</button>
+        </div>
+        <div class="setting-row">
+          <span>Режим карты студии</span>
+          <button id="pref-sandbox" class="btn-pill" type="button">По шагам</button>
+        </div>
+        <div class="setting-row">
+          <span>Экскурсия по интерфейсу</span>
+          <button id="btn-start-tour" class="btn-pill" type="button">🧭 Открыть гид</button>
+        </div>
+        <div class="setting-col">
+          <span class="field-label">Строй моей гитары</span>
+          <div id="pref-tuning-pills" class="pill-rail"></div>
+        </div>
+      </div>
+
+      <div class="card l04-card">
+        <div class="layer-tag">Поддержка проекта</div>
+        <h2>💛 Поддержать «Язык музыки» в Tribute</h2>
+        <p class="muted small-text">Приложение открыто бесплатно, без рекламы и подписок. Если уроки, тюнер или ударные помогли почувствовать музыку глубже — можно поддержать развитие проекта любой суммой через Tribute.</p>
+        <button id="btn-support-tribute" class="btn primary full" type="button">Поддержать в Tribute →</button>
+        <p id="l04-status" class="muted small-text"></p>
+      </div>
+
+      <div class="card">
+        <h2>Данные и локальная копия</h2>
+        <p id="storage-backend-info" class="muted small-text"></p>
+        <div class="two-col-row">
+          <button id="btn-export" class="btn secondary" type="button">Скопировать JSON</button>
+          <button id="btn-reset" class="btn-ghost danger-text" type="button">Сбросить</button>
+        </div>
+      </div>
+    </section>
+
+    <footer id="app-support-footer" class="support-footer">
+      <button id="btn-footer-tribute" class="support-footer-btn" type="button">
+        <span class="sf-left">💛 Поддержать проект</span>
+        <span class="sf-right">Tribute ›</span>
+      </button>
+    </footer>
+  </main>
+
+  <!-- INTERACTIVE SPOTLIGHT PRODUCT TOUR (Гид по студии · 6 разделов · 22 шага) -->
+  <div id="tour-overlay" class="tour-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+    <div id="tour-backdrop" class="tour-backdrop"></div>
+    <div id="tour-spotlight" class="tour-spotlight hidden"></div>
+    <div id="tour-card" class="tour-card">
+      <div class="tour-card-top">
+        <span id="tour-step-badge" class="chip">Шаг 1 из 22</span>
+        <button id="btn-tour-skip" class="tour-skip-btn" type="button">✕ Закрыть</button>
+      </div>
+      <div id="tour-chapters" class="tour-chapters" aria-label="Разделы обучения"></div>
+      <div class="tour-progress-bar"><div id="tour-progress-fill" class="tour-progress-fill"></div></div>
+      <h2 id="tour-title" class="tour-title"></h2>
+      <p id="tour-body" class="tour-body"></p>
+      <div id="tour-link-box" class="tour-link-box hidden">
+        <span class="tour-link-tag">🔗 Как связано</span>
+        <p id="tour-link-text" class="tour-link-text"></p>
+      </div>
+      <div class="tour-actions">
+        <button id="btn-tour-prev" class="btn-ghost" type="button">← Назад</button>
+        <button id="btn-tour-next" class="btn primary" type="button">Далее →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NFS PROGRESSIVE UNLOCK & MILESTONE CELEBRATION SHEET (WITH TRIBUTE FAST-TRACK / SUPPORT) -->
+  <div id="unlock-modal" class="unlock-modal hidden" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
+    <div id="unlock-backdrop" class="unlock-backdrop"></div>
+    <div class="unlock-card">
+      <div class="unlock-card-top">
+        <span id="unlock-badge" class="chip">Новая зона</span>
+        <button id="btn-unlock-x" class="tour-skip-btn" type="button" aria-label="Закрыть">✕</button>
+      </div>
+      <h2 id="unlock-title" class="unlock-title"></h2>
+      <p id="unlock-body" class="unlock-body"></p>
+      <div class="unlock-actions">
+        <button id="btn-unlock-go" class="btn primary full" type="button">▶ Открыть</button>
+        <button id="btn-unlock-close" class="btn-ghost full" type="button">Позже</button>
+      </div>
+      <div id="unlock-tribute-box" class="unlock-tribute-box">
+        <p id="unlock-tribute-copy" class="unlock-tribute-copy"></p>
+        <button id="btn-unlock-tribute" class="btn full unlock-tribute-btn" type="button">💛 Поддержать в Tribute</button>
+        <button id="btn-unlock-confirm-paid" class="btn-link unlock-confirm-btn hidden" type="button">✓ Я уже поддержал — открыть всю студию</button>
+      </div>
+    </div>
+  </div>
+
+  <noscript><div><img src="https://mc.yandex.ru/watch/114644297" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <script src="./analytics.js?v=113"></script>
+  <script src="./music-theory.js?v=113"></script>
+  <script src="./audio-engine.js?v=113"></script>
+  <script src="./triptych-viz.js?v=113"></script>
+  <script src="./harmony-lab.js?v=113"></script>
+  <script src="./feelings-atlas.js?v=113"></script>
+  <script src="./guitar-lab.js?v=113"></script>
+  <script src="./drum-engine.js?v=113"></script>
+  <script src="./tuner-engine.js?v=113"></script>
+  <script src="./storage.js?v=113"></script>
+  <script src="./app.js?v=113"></script>
+</body>
+</html>

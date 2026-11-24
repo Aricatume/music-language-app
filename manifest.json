@@ -1,0 +1,78 @@
+{
+  "bundle_sha256": "b948ab3ec9b7cc0d9ce3135eaed8f0f2222e9da484279411ea36b7206d24d843",
+  "catalog_atoms": 216,
+  "catalog_mechanics": 20,
+  "files": {
+    ".nojekyll": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "analytics.js": {
+      "sha256": "7a577fd65d055b5cee3b0d0d93b70de3ad6d3a456874cc9899ac7c5f0e933f1d",
+      "size_bytes": 3547
+    },
+    "app.js": {
+      "sha256": "3aae31a9023756d85619c950476d88c847bc336264858b47c3e71c8f98e375c0",
+      "size_bytes": 191080
+    },
+    "audio-engine.js": {
+      "sha256": "28e3691aedbbc4eb01eb7b567850e60b9225823b9e0f3c3779047ecedaccd931",
+      "size_bytes": 26063
+    },
+    "drum-engine.js": {
+      "sha256": "27f5e487528520b6e7940ca94d3d1e93f3cbec274bc96de8fa2a4378782065e0",
+      "size_bytes": 43767
+    },
+    "feelings-atlas.js": {
+      "sha256": "69791dd33857164b1a367c147f5a82e66582f8f084fb258f5f63f65b217cd6bf",
+      "size_bytes": 51004
+    },
+    "guitar-lab.js": {
+      "sha256": "ed141a4c24ef248b59c90377333de2cfb26ec3d3c84650a405f2ce729bdd0023",
+      "size_bytes": 28452
+    },
+    "harmony-lab.js": {
+      "sha256": "61444a7fd949ef78981be40a4618dc418f0089228d42dd5c0a1d0f1429241149",
+      "size_bytes": 25348
+    },
+    "icon.svg": {
+      "sha256": "6dc38d79447b4b49e5cef9a82b85e82c20c9e6df82071f33de99ccd40af07b06",
+      "size_bytes": 731
+    },
+    "index.html": {
+      "sha256": "eaeb5d9239749cb3d13f566d1fb452eb08fc33cb6585e1ebcf4fd9452e3f6d3b",
+      "size_bytes": 51844
+    },
+    "manifest.webmanifest": {
+      "sha256": "efdb59dca70b0a254714ee8b588d6fcca62e2e87c322c809ab20d9daae4f31ed",
+      "size_bytes": 410
+    },
+    "music-catalog.json": {
+      "sha256": "01793872431a3cbb1ca7b0975383475ce71d5299fc60458873f40e912f282a0d",
+      "size_bytes": 746601
+    },
+    "music-theory.js": {
+      "sha256": "fd48a179d8c7bfa10dd339a7c5b1ce096ca6ce6b06ae65aad823cc757789cc66",
+      "size_bytes": 65092
+    },
+    "storage.js": {
+      "sha256": "0897d0cf80522a5d4b8f0464a299c3eae1b4e646511bc5525163d9a5a53dd382",
+      "size_bytes": 16081
+    },
+    "style.css": {
+      "sha256": "66dc8e962c45021424b52a26f10033b6489f61959760afbf3efd6b170c93b109",
+      "size_bytes": 47131
+    },
+    "triptych-viz.js": {
+      "sha256": "68de716267257138030dd4370f7867227fc6bd66adf3b213bb8067773ddd14d2",
+      "size_bytes": 24559
+    },
+    "tuner-engine.js": {
+      "sha256": "dcef37cb44e1f3bb373467de50f8bec3dd3ccc4d8732bd7bf5128079e4d702ed",
+      "size_bytes": 19503
+    }
+  },
+  "product_id": "music-language-tg-app",
+  "runtime": "static-serverless-pages",
+  "schema_version": "1.1.0"
+}
